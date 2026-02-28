@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
+import { Client } from 'https://deno.land/x/mysql@v2.12.1/mod.ts'
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const corsHeaders = {
@@ -6,11 +6,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+
+const getMysqlConfig = () => {
+  const host = Deno.env.get('MYSQL_HOST');
+  const user = Deno.env.get('MYSQL_USER');
+  const password = Deno.env.get('MYSQL_PASSWORD');
+  const database = Deno.env.get('MYSQL_DATABASE');
+  const port = Number(Deno.env.get('MYSQL_PORT') ?? '3306');
+
+  if (!host || !user || !password || !database) {
+    throw new Error('Missing MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, or MYSQL_DATABASE');
+  }
+
+  return { host, user, password, database, port };
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let mysql: Client | null = null;
 
   try {
     console.log('Export members function called');
@@ -18,16 +35,12 @@ serve(async (req) => {
     const url = new URL(req.url);
     const format = url.searchParams.get('format') || 'csv';
     
-    // Initialize MySQL client
-    const mysql = createClient(
-      Deno.env.get('MYSQL_URL') ?? '',
-      Deno.env.get('MYSQL_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Initialize direct MySQL client (PHP-style DB access)
+    mysql = await new Client().connect(getMysqlConfig());
 
     // Fetch all member registrations
-    const { data: members, error } = await mysql
-      .from('membership_registrations')
-      .select(`
+    const members = await mysql.query(`
+      SELECT
         id,
         tns_number,
         first_name,
@@ -52,13 +65,9 @@ serve(async (req) => {
         registration_date,
         probation_end_date,
         created_at
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching members:', error);
-      throw error;
-    }
+      FROM membership_registrations
+      ORDER BY created_at DESC
+    `);
 
     console.log(`Exporting ${members?.length || 0} members in ${format} format`);
 
@@ -81,12 +90,16 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in export-members function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }), 
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }), 
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
+  } finally {
+    if (mysql) {
+      await mysql.close();
+    }
   }
 });
 

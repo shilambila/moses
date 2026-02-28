@@ -1,13 +1,18 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Users, Phone, FileText, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { getFunctionsBaseUrl } from '@/integrations/mysql/url';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isCheckingDb, setIsCheckingDb] = useState(false);
+
+  const MYSQL_FUNCTIONS_BASE_URL = getFunctionsBaseUrl(import.meta.env.VITE_MYSQL_URL);
 
   const navigation = [
     { name: 'About Us', href: '#about' },
@@ -19,6 +24,33 @@ const Header = () => {
     { name: user ? 'Dashboard' : 'Staff Portal', href: user ? '/dashboard' : '/auth', route: true },
     { name: 'Portal Login', href: '/portal-login', route: true }
   ];
+
+
+  const handleCheckDb = async () => {
+    if (!MYSQL_FUNCTIONS_BASE_URL) {
+      toast.error('Database URL is not configured');
+      return;
+    }
+
+    setIsCheckingDb(true);
+    const toastId = toast.loading('Checking database connection...');
+
+    try {
+      const response = await fetch(`${MYSQL_FUNCTIONS_BASE_URL}/checkdb`);
+      const payload = await response.json();
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error || 'Database check failed');
+      }
+
+      toast.success('Database is reachable', { id: toastId });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to reach database';
+      toast.error(`CheckDB failed: ${message}`, { id: toastId });
+    } finally {
+      setIsCheckingDb(false);
+    }
+  };
 
   const handleNavigation = (item: { href: string; route?: boolean }) => {
     if (item.route) {
@@ -61,6 +93,9 @@ const Header = () => {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <Button size="sm" variant="outline" onClick={handleCheckDb} disabled={isCheckingDb}>
+              {isCheckingDb ? 'Checking...' : 'Check DB'}
+            </Button>
             <Button size="sm" onClick={() => handleNavigation({ href: '#register' })}>
               <User className="h-4 w-4 mr-2" />
               Join Now
@@ -94,6 +129,9 @@ const Header = () => {
                 </button>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                <Button size="sm" variant="outline" onClick={handleCheckDb} disabled={isCheckingDb}>
+                  {isCheckingDb ? 'Checking...' : 'Check DB'}
+                </Button>
                 <Button size="sm" onClick={() => handleNavigation({ href: '#register' })}>
                   <User className="h-4 w-4 mr-2" />
                   Join Now
