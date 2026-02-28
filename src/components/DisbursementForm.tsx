@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -32,7 +32,7 @@ export const DisbursementForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const fetchMembers = async () => {
     setLoadingMembers(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from("membership_registrations")
         .select("id, first_name, last_name, tns_number")
         .eq("registration_status", "approved")
@@ -65,7 +65,7 @@ export const DisbursementForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     setIsLoading(true);
     try {
       // Insert disbursement record
-      const { error: disbursementError } = await supabase
+      const { error: disbursementError } = await mysql
         .from("disbursements")
         .insert({
           member_id: selectedMember,
@@ -78,14 +78,14 @@ export const DisbursementForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       if (disbursementError) throw disbursementError;
 
       // Update member balance
-      const { data: currentBalance } = await supabase
+      const { data: currentBalance } = await mysql
         .from("member_balances")
         .select("current_balance, total_disbursements")
         .eq("member_id", selectedMember)
         .single();
 
       if (currentBalance) {
-        await supabase
+        await mysql
           .from("member_balances")
           .update({
             current_balance: currentBalance.current_balance - numAmount,

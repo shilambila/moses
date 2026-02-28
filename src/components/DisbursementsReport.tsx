@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -29,7 +29,7 @@ export const DisbursementsReport = () => {
 
   const fetchDisbursements = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from("disbursements")
         .select(`
           *,

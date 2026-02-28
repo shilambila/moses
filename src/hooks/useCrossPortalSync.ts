@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { mysql } from '@/integrations/mysql/client';
 
 interface MemberUpdateEvent {
   action: 'UPDATE' | 'INSERT' | 'DELETE';
@@ -81,7 +81,7 @@ export const useCrossPortalSync = (options: CrossPortalSyncOptions) => {
     console.log(`${portalName}: Setting up cross-portal sync...`);
 
     // Set up real-time subscription for member changes
-    const channel = supabase
+    const channel = mysql
       .channel(`cross-portal-sync-${portalName}`)
       .on('postgres_changes', 
           { event: 'UPDATE', schema: 'public', table: 'membership_registrations' }, 
@@ -154,7 +154,7 @@ export const useCrossPortalSync = (options: CrossPortalSyncOptions) => {
       console.log(`${portalName}: Cleaning up cross-portal sync...`);
       
       try {
-        supabase.removeChannel(channel);
+        mysql.removeChannel(channel);
         window.removeEventListener('memberDataChanged', handleMemberDataChanged as EventListener);
         window.removeEventListener('refreshAllPortals', handleRefreshAllPortals as EventListener);
         window.removeEventListener('storage', handleStorageChange);

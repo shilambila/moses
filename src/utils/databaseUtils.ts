@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { mysql } from '@/integrations/mysql/client';
 
 export interface EnhancedMemberBalance {
   member_id: string;
@@ -60,7 +60,7 @@ export const fetchEnhancedMemberFinancialData = async (
 
   try {
     // 1. Fetch detailed contributions data
-    const { data: contributionsData, error: contributionsError } = await supabase
+    const { data: contributionsData, error: contributionsError } = await mysql
       .from('contributions')
       .select(`
         id,
@@ -98,7 +98,7 @@ export const fetchEnhancedMemberFinancialData = async (
     }
 
     // 2. Fetch or calculate member balances
-    const { data: balancesData, error: balancesError } = await supabase
+    const { data: balancesData, error: balancesError } = await mysql
       .from('member_balances')
       .select(`
         member_id,
@@ -195,7 +195,7 @@ const calculateBalancesFromContributions = async (
   let disbursements: Record<string, number> = {};
   
   try {
-    const { data: disbursementsData } = await supabase
+    const { data: disbursementsData } = await mysql
       .from('disbursements')
       .select('member_id, amount')
       .in('member_id', memberIds);
@@ -311,7 +311,7 @@ export const fetchMembersWithEnhancedData = async (staffUser: any) => {
   
   try {
     // 1. Fetch all members
-    const { data: membersData, error: membersError } = await supabase
+    const { data: membersData, error: membersError } = await mysql
       .from('membership_registrations')
       .select('*')
       .in('registration_status', ['approved', 'pending'])

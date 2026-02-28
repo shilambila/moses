@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { UserPlus, ChevronLeft, ChevronRight, Upload, Users, Heart, User, Baby, UserCheck, Receipt, Globe } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { mysql } from '@/integrations/mysql/client';
 
 interface MemberInfo {
   name: string;
@@ -138,7 +138,7 @@ const MultiStepRegistration = () => {
       }
 
       // Check for duplicate ID number in the system
-      const { data: existingById, error: idCheckError } = await supabase
+      const { data: existingById, error: idCheckError } = await mysql
         .from('membership_registrations')
         .select('id')
         .eq('id_number', rawId)
@@ -193,14 +193,14 @@ const MultiStepRegistration = () => {
       let profilePictureUrl = null;
       if (memberInfo.photo) {
         const fileName = `${Date.now()}-${memberInfo.photo.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { data: uploadData, error: uploadError } = await mysql.storage
           .from('member-profiles')
           .upload(fileName, memberInfo.photo);
 
         if (uploadError) {
           console.error('Error uploading photo:', uploadError);
         } else {
-          const { data: { publicUrl } } = supabase.storage
+          const { data: { publicUrl } } = mysql.storage
             .from('member-profiles')
             .getPublicUrl(fileName);
           profilePictureUrl = publicUrl;
@@ -211,14 +211,14 @@ const MultiStepRegistration = () => {
       let spousePhotoUrl = null;
       if (spouseInfo.photo) {
         const spouseFileName = `spouse-${Date.now()}-${spouseInfo.photo.name}`;
-        const { data: spouseUploadData, error: spouseUploadError } = await supabase.storage
+        const { data: spouseUploadData, error: spouseUploadError } = await mysql.storage
           .from('member-profiles')
           .upload(spouseFileName, spouseInfo.photo);
 
         if (spouseUploadError) {
           console.error('Error uploading spouse photo:', spouseUploadError);
         } else {
-          const { data: { publicUrl } } = supabase.storage
+          const { data: { publicUrl } } = mysql.storage
             .from('member-profiles')
             .getPublicUrl(spouseFileName);
           spousePhotoUrl = publicUrl;
@@ -337,7 +337,7 @@ const MultiStepRegistration = () => {
       console.log('Children count:', children.length);
       console.log('Parents info:', { parent1: parentsInfo.parent1.name, parent2: parentsInfo.parent2.name });
       
-      let { data, error } = await supabase
+      let { data, error } = await mysql
         .from('membership_registrations')
         .insert(registrationData)
         .select()
@@ -363,7 +363,7 @@ const MultiStepRegistration = () => {
           
           console.log('Retrying with fallback data:', fallbackData);
           
-          const { data: fallbackResult, error: fallbackError } = await supabase
+          const { data: fallbackResult, error: fallbackError } = await mysql
             .from('membership_registrations')
             .insert(fallbackData)
             .select()

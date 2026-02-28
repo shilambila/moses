@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { 
   Search,
   Filter,
@@ -145,7 +145,7 @@ export const AuditTrail = () => {
         const auditLogs: AuditLogEntry[] = [];
         
         // Get recent contributions as audit entries
-        const { data: contributions } = await supabase
+        const { data: contributions } = await mysql
           .from('contributions')
           .select(`
             id,
@@ -183,7 +183,7 @@ export const AuditTrail = () => {
         });
         
         // Get recent disbursements as audit entries
-        const { data: disbursements } = await supabase
+        const { data: disbursements } = await mysql
           .from('disbursements')
           .select(`
             id,
@@ -223,7 +223,7 @@ export const AuditTrail = () => {
         });
         
         // Get recent expenses as audit entries
-        const { data: expenses } = await supabase
+        const { data: expenses } = await mysql
           .from('monthly_expenses')
           .select('*')
           .order('created_at', { ascending: false })
@@ -248,7 +248,7 @@ export const AuditTrail = () => {
         });
         
         // Get recent M-Pesa payments as audit entries
-        const { data: mpesaPayments } = await supabase
+        const { data: mpesaPayments } = await mysql
           .from('mpesa_payments')
           .select('*')
           .order('created_at', { ascending: false })

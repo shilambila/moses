@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserPlus, Shield } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
+import { mysql } from '@/integrations/mysql/client';
 
 const AdminRegistration = () => {
   const { toast } = useToast();
@@ -61,7 +61,7 @@ const AdminRegistration = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from('staff_registrations')
         .insert([
           {

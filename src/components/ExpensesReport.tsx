@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
@@ -29,7 +29,7 @@ export const ExpensesReport = () => {
 
   const fetchExpenses = async () => {
     try {
-      let query = supabase
+      let query = mysql
         .from("monthly_expenses")
         .select("*")
         .order("expense_date", { ascending: false });

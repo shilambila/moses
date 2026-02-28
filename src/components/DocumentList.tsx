@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Search, Edit, Trash2, Eye, Plus, Calendar } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { DocumentEditor } from "./DocumentEditor";
@@ -38,7 +38,7 @@ export const DocumentList = () => {
   const fetchDocuments = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from('documents')
         .select('*')
         .order('updated_at', { ascending: false });
@@ -72,7 +72,7 @@ export const DocumentList = () => {
     if (!confirm("Are you sure you want to delete this document?")) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await mysql
         .from('documents')
         .delete()
         .eq('id', id);

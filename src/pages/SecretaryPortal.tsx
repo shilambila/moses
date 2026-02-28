@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -181,7 +181,7 @@ const SecretaryPortal = () => {
       setLoading(true);
       
       // Fetch all members with comprehensive data
-      const { data: memberData, error: memberError } = await supabase
+      const { data: memberData, error: memberError } = await mysql
         .from('membership_registrations')
         .select('*')
         .order('first_name');
@@ -194,12 +194,12 @@ const SecretaryPortal = () => {
       }
 
       // Fetch documents count
-      const { count: documentsCount, error: documentsError } = await supabase
+      const { count: documentsCount, error: documentsError } = await mysql
         .from('documents')
         .select('*', { count: 'exact', head: true });
 
       // Fetch recent communications count (using documents as a proxy since member_notifications doesn't exist)
-      const { count: communicationsCount, error: commsError } = await supabase
+      const { count: communicationsCount, error: commsError } = await mysql
         .from('documents')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -49,7 +49,7 @@ export const ExpenditureForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       const date = new Date(expenseDate);
       const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-      const { error } = await supabase
+      const { error } = await mysql
         .from("monthly_expenses")
         .insert({
           amount: numAmount,

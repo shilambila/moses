@@ -25,7 +25,7 @@ import {
   Plus,
   Eye
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -89,7 +89,7 @@ export const CommunicationCenter = () => {
       setIsLoading(true);
       
       // Fetch members
-      const { data: memberData, error: memberError } = await supabase
+      const { data: memberData, error: memberError } = await mysql
         .from('membership_registrations')
         .select('*')
         .eq('registration_status', 'approved')

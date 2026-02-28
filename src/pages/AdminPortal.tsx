@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Users, UserCheck, UserX, Shield, Key, LogOut, Download, FileSpreadsheet, FileText, File, BarChart3, PieChart, DollarSign, TrendingUp, Calculator, Trash2, AlertTriangle, Edit, Save, X, UserMinus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
@@ -219,7 +219,7 @@ const AdminPortal = () => {
 
   // Enhanced realtime subscriptions for comprehensive data synchronization
   useEffect(() => {
-    const channel = supabase
+    const channel = mysql
       .channel('realtime-admin-portal')
       // MPESA payments and contributions
       .on('postgres_changes', { 
@@ -293,7 +293,7 @@ const AdminPortal = () => {
 
     return () => {
       try { 
-        supabase.removeChannel(channel); 
+        mysql.removeChannel(channel); 
         window.removeEventListener('memberUpdated', handleMemberUpdate as EventListener);
       } catch (_) {}
     };
@@ -305,7 +305,7 @@ const AdminPortal = () => {
     setLoading(true);
     try {
       // Fetch pending member registrations
-      const { data: members, error: membersError } = await supabase
+      const { data: members, error: membersError } = await mysql
         .from("membership_registrations")
         .select("*")
         .eq("registration_status", "pending")
@@ -314,7 +314,7 @@ const AdminPortal = () => {
       if (membersError) throw membersError;
 
       // Fetch all member registrations
-      const { data: allMembersData, error: allMembersError } = await supabase
+      const { data: allMembersData, error: allMembersError } = await mysql
         .from("membership_registrations")
         .select("*")
         .order("created_at", { ascending: false });
@@ -322,7 +322,7 @@ const AdminPortal = () => {
       if (allMembersError) throw allMembersError;
 
       // Fetch pending staff registrations
-      const { data: staff, error: staffError } = await supabase
+      const { data: staff, error: staffError } = await mysql
         .from("staff_registrations")
         .select("*")
         .in("pending", ["", "pending"])
@@ -331,7 +331,7 @@ const AdminPortal = () => {
       if (staffError) throw staffError;
 
       // Fetch all staff registrations
-      const { data: allStaffData, error: allStaffError } = await supabase
+      const { data: allStaffData, error: allStaffError } = await mysql
         .from("staff_registrations")
         .select("*")
         .order("created_at", { ascending: false });
@@ -339,7 +339,7 @@ const AdminPortal = () => {
       if (allStaffError) throw allStaffError;
 
       // Fetch MPESA payments - only show completed payments to admin
-      const { data: mpesaData, error: mpesaError } = await supabase
+      const { data: mpesaData, error: mpesaError } = await mysql
         .from("mpesa_payments")
         .select("*")
         .eq("status", "completed")
@@ -350,7 +350,7 @@ const AdminPortal = () => {
       // Fetch member details for MPESA payments
       const mpesaWithMembers = await Promise.all(
         (mpesaData || []).map(async (payment) => {
-          const { data: memberData } = await supabase
+          const { data: memberData } = await mysql
             .from("membership_registrations")
             .select("first_name, last_name, tns_number, email")
             .eq("id", payment.member_id)
@@ -364,7 +364,7 @@ const AdminPortal = () => {
       );
 
       // Fetch contributions
-      const { data: contributionsData, error: contributionsError } = await supabase
+      const { data: contributionsData, error: contributionsError } = await mysql
         .from("contributions")
         .select("*")
         .order("contribution_date", { ascending: false });
@@ -372,7 +372,7 @@ const AdminPortal = () => {
       if (contributionsError) throw contributionsError;
 
       // Fetch disbursements
-      const { data: disbursementsData, error: disbursementsError } = await supabase
+      const { data: disbursementsData, error: disbursementsError } = await mysql
         .from("disbursements")
         .select("*")
         .order("disbursement_date", { ascending: false });
@@ -380,7 +380,7 @@ const AdminPortal = () => {
       if (disbursementsError) throw disbursementsError;
 
       // Fetch monthly expenses
-      const { data: expensesData, error: expensesError } = await supabase
+      const { data: expensesData, error: expensesError } = await mysql
         .from("monthly_expenses")
         .select("*")
         .order("expense_date", { ascending: false });
@@ -406,7 +406,7 @@ const AdminPortal = () => {
   const approveMember = async (memberId: string) => {
     try {
       // Get member details before approval for logging and feedback
-      const { data: memberData, error: fetchError } = await supabase
+      const { data: memberData, error: fetchError } = await mysql
         .from("membership_registrations")
         .select("first_name, last_name, email, tns_number")
         .eq("id", memberId)
@@ -417,7 +417,7 @@ const AdminPortal = () => {
       console.log(`Approving member: ${memberData?.first_name} ${memberData?.last_name} (ID: ${memberId})`);
 
       // Approve the member - TNS number is already auto-assigned by database trigger
-      const { error: updateError, count } = await supabase
+      const { error: updateError, count } = await mysql
         .from("membership_registrations")
         .update({ 
           registration_status: "approved",
@@ -471,7 +471,7 @@ const AdminPortal = () => {
   const rejectMember = async (memberId: string) => {
     try {
       // Get member details before rejection for logging and feedback
-      const { data: memberData, error: fetchError } = await supabase
+      const { data: memberData, error: fetchError } = await mysql
         .from("membership_registrations")
         .select("first_name, last_name, email, tns_number")
         .eq("id", memberId)
@@ -482,7 +482,7 @@ const AdminPortal = () => {
       console.log(`Rejecting member: ${memberData?.first_name} ${memberData?.last_name} (ID: ${memberId})`);
 
       // Reject the member registration
-      const { error: updateError, count } = await supabase
+      const { error: updateError, count } = await mysql
         .from("membership_registrations")
         .update({ 
           registration_status: "rejected",
@@ -630,7 +630,7 @@ const AdminPortal = () => {
       console.log(`Updating member: ${editFormData.first_name} ${editFormData.last_name} (ID: ${memberToEdit.id})`);
 
       // Update member in database with automatic sync across all portals
-      const { error: updateError, data: updatedMember } = await supabase
+      const { error: updateError, data: updatedMember } = await mysql
         .from("membership_registrations")
         .update(updateData)
         .eq("id", memberToEdit.id)
@@ -677,7 +677,7 @@ const AdminPortal = () => {
       // 4. Update member balances if payment status changed
       if (editFormData.payment_status !== memberToEdit.payment_status) {
         console.log('Payment status changed - refreshing member balances...');
-        const { error: balanceError } = await supabase
+        const { error: balanceError } = await mysql
           .from('member_balances')
           .upsert({
             member_id: memberToEdit.id,
@@ -808,14 +808,14 @@ const AdminPortal = () => {
       // Step 1: Delete disbursement documents (bereavement forms and other documents)
       console.log('Deleting disbursement documents for member:', memberId);
       try {
-        const { data: disbursementIds } = await supabase
+        const { data: disbursementIds } = await mysql
           .from('disbursements')
           .select('id')
           .eq('member_id', memberId);
         
         if (disbursementIds && disbursementIds.length > 0) {
           const disbIds = disbursementIds.map(d => d.id);
-          const { error: docsError, count: docsCount } = await supabase
+          const { error: docsError, count: docsCount } = await mysql
             .from('disbursement_documents')
             .delete()
             .in('disbursement_id', disbIds);
@@ -833,7 +833,7 @@ const AdminPortal = () => {
       
       // Step 2: Delete MPESA payments (no FK constraint, must delete manually)
       console.log('Deleting MPESA payments for member:', memberId);
-      const { error: mpesaError, count: mpesaCount } = await supabase
+      const { error: mpesaError, count: mpesaCount } = await mysql
         .from("mpesa_payments")
         .delete()
         .eq("member_id", memberId);
@@ -848,7 +848,7 @@ const AdminPortal = () => {
       // Step 3: Delete member notifications (if table exists)
       console.log('Deleting member notifications for member:', memberId);
       try {
-        const { error: notificationsError, count: notificationsCount } = await supabase
+        const { error: notificationsError, count: notificationsCount } = await mysql
           .from("member_notifications" as any)
           .delete()
           .eq("member_id", memberId);
@@ -866,7 +866,7 @@ const AdminPortal = () => {
       // Step 4: Delete document sharing records (if table exists)
       console.log('Deleting document sharing records for member:', memberId);
       try {
-        const { error: sharingError, count: sharingCount } = await supabase
+        const { error: sharingError, count: sharingCount } = await mysql
           .from("document_sharing" as any)
           .delete()
           .or(`shared_with.eq.${memberId},shared_by.eq.${memberId}`);
@@ -884,7 +884,7 @@ const AdminPortal = () => {
       // Step 5: Delete member audit logs (if table exists)
       console.log('Deleting audit logs for member:', memberId);
       try {
-        const { error: auditError, count: auditCount } = await supabase
+        const { error: auditError, count: auditCount } = await mysql
           .from("audit_logs" as any)
           .delete()
           .eq("record_id", memberId)
@@ -902,7 +902,7 @@ const AdminPortal = () => {
       
       // Step 6: Delete member balances (has CASCADE, but delete explicitly for logging)
       console.log('Deleting member balances for member:', memberId);
-      const { error: balancesError, count: balancesCount } = await supabase
+      const { error: balancesError, count: balancesCount } = await mysql
         .from("member_balances")
         .delete()
         .eq("member_id", memberId);
@@ -916,7 +916,7 @@ const AdminPortal = () => {
       
       // Step 7: Delete contributions (has CASCADE, but delete explicitly to ensure cleanup)
       console.log('Deleting contributions for member:', memberId);
-      const { error: contributionsError, count: contributionsCount } = await supabase
+      const { error: contributionsError, count: contributionsCount } = await mysql
         .from("contributions")
         .delete()
         .eq("member_id", memberId);
@@ -930,7 +930,7 @@ const AdminPortal = () => {
       
       // Step 8: Delete disbursements (has CASCADE, but delete explicitly)
       console.log('Deleting disbursements for member:', memberId);
-      const { error: disbursementsError, count: disbursementsCount } = await supabase
+      const { error: disbursementsError, count: disbursementsCount } = await mysql
         .from("disbursements")
         .delete()
         .eq("member_id", memberId);
@@ -945,7 +945,7 @@ const AdminPortal = () => {
       // Step 9: Delete any task records that might reference this member
       console.log('Deleting task records related to member:', memberId);
       try {
-        const { error: tasksError, count: tasksCount } = await supabase
+        const { error: tasksError, count: tasksCount } = await mysql
           .from("tasks")
           .delete()
           .or(`data->>member_id.eq.${memberId},data->>target_member.eq.${memberId}`);
@@ -967,7 +967,7 @@ const AdminPortal = () => {
         if (memberEmail) {
           // Delete user sessions if table exists
           try {
-            const { error: sessionsError, count: sessionsCount } = await supabase
+            const { error: sessionsError, count: sessionsCount } = await mysql
               .from("user_sessions" as any)
               .delete()
               .eq("user_email", memberEmail);
@@ -982,7 +982,7 @@ const AdminPortal = () => {
           
           // Delete login activities if table exists
           try {
-            const { error: activitiesError, count: activitiesCount } = await supabase
+            const { error: activitiesError, count: activitiesCount } = await mysql
               .from("login_activities" as any)
               .delete()
               .eq("user_email", memberEmail);
@@ -1002,7 +1002,7 @@ const AdminPortal = () => {
       // Step 10a: Delete any member communication logs (SMS, emails, etc.)
       console.log('Deleting communication logs for member:', memberId);
       try {
-        const { error: commError, count: commCount } = await supabase
+        const { error: commError, count: commCount } = await mysql
           .from("communication_logs" as any)
           .delete()
           .eq("member_id", memberId);
@@ -1018,7 +1018,7 @@ const AdminPortal = () => {
       // Step 10b: Delete any member support tickets or help requests
       console.log('Deleting support tickets for member:', memberId);
       try {
-        const { error: ticketError, count: ticketCount } = await supabase
+        const { error: ticketError, count: ticketCount } = await mysql
           .from("support_tickets" as any)
           .delete()
           .eq("member_id", memberId);
@@ -1043,7 +1043,7 @@ const AdminPortal = () => {
         
         for (const tableName of tablesToCheck) {
           try {
-            const { error: checkError, count: remainingCount } = await supabase
+            const { error: checkError, count: remainingCount } = await mysql
               .from(tableName as any)
               .select('id', { count: 'exact' })
               .eq('member_id', memberId);
@@ -1052,7 +1052,7 @@ const AdminPortal = () => {
               console.log(`Found ${remainingCount} records in ${tableName}, attempting cleanup...`);
               
               // Attempt to delete these records
-              const { error: cleanupError, count: cleanedCount } = await supabase
+              const { error: cleanupError, count: cleanedCount } = await mysql
                 .from(tableName as any)
                 .delete()
                 .eq('member_id', memberId);
@@ -1081,7 +1081,7 @@ const AdminPortal = () => {
         
         try {
           // First verify the member still exists
-          const { data: memberCheck, error: checkError } = await supabase
+          const { data: memberCheck, error: checkError } = await mysql
             .from('membership_registrations')
             .select('id, first_name, last_name')
             .eq('id', memberId)
@@ -1094,7 +1094,7 @@ const AdminPortal = () => {
           }
           
           // Attempt deletion
-          const { error: memberError, count: memberCount } = await supabase
+          const { error: memberError, count: memberCount } = await mysql
             .from("membership_registrations")
             .delete()
             .eq("id", memberId);
@@ -1224,7 +1224,7 @@ const AdminPortal = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await mysql
         .from("staff_registrations")
         .update({ 
           pending: "approved",
@@ -1247,7 +1247,7 @@ const AdminPortal = () => {
 
   const rejectStaff = async (staffId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await mysql
         .from("staff_registrations")
         .update({ pending: "rejected" })
         .eq("id", staffId);
@@ -1345,7 +1345,7 @@ const AdminPortal = () => {
 
       // CSV/Excel export via edge function
       const response = await fetch(
-        "https://wfqgnshhlfuznabweofj.supabase.co/functions/v1/export-members?format=" + format,
+        "https://wfqgnshhlfuznabweofj.mysql.co/functions/v1/export-members?format=" + format,
         {
           method: 'GET',
           headers: {
@@ -1484,7 +1484,7 @@ const AdminPortal = () => {
       }
 
       // Otherwise, use edge function (CSV/Excel)
-      const response = await fetch('https://wfqgnshhlfuznabweofj.supabase.co/functions/v1/export-treasurer-report', {
+      const response = await fetch('https://wfqgnshhlfuznabweofj.mysql.co/functions/v1/export-treasurer-report', {
         method: 'POST',
         headers: {
           'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA",

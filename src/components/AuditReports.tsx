@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { 
   Download, 
   FileText, 
@@ -157,7 +157,7 @@ export const AuditReports = () => {
       let endDate = dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined;
       
       // Fetch contributions
-      let contributionsQuery = supabase
+      let contributionsQuery = mysql
         .from('contributions')
         .select(`
           *,
@@ -190,7 +190,7 @@ export const AuditReports = () => {
       setContributions(formattedContributions);
       
       // Fetch disbursements
-      let disbursementsQuery = supabase
+      let disbursementsQuery = mysql
         .from('disbursements')
         .select(`
           *,
@@ -223,7 +223,7 @@ export const AuditReports = () => {
       setDisbursements(formattedDisbursements);
       
       // Fetch member balances
-      const { data: balancesData, error: balancesError } = await supabase
+      const { data: balancesData, error: balancesError } = await mysql
         .from('member_balances')
         .select(`
           *,
@@ -250,7 +250,7 @@ export const AuditReports = () => {
       setBalances(formattedBalances);
       
       // Fetch expenses
-      let expensesQuery = supabase
+      let expensesQuery = mysql
         .from('monthly_expenses')
         .select('*')
         .order('expense_date', { ascending: false });

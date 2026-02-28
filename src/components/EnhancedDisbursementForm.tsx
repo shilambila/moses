@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Loader2, Download, Upload, FileText, CheckCircle, AlertCircle, UserMinus } from "lucide-react";
 import jsPDF from "jspdf";
@@ -80,7 +80,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
   const fetchMembers = async () => {
     setLoadingMembers(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from("membership_registrations")
         .select("id, first_name, last_name, tns_number, phone, email, address")
         .eq("registration_status", "approved")
@@ -98,7 +98,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
 
   const fetchDisbursements = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from("disbursements")
         .select("*")
         .order("created_at", { ascending: false })
@@ -110,7 +110,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
       // Fetch associated documents
       if (data && data.length > 0) {
         const disbursementIds = data.map(d => d.id);
-        const { data: docsData, error: docsError } = await supabase
+        const { data: docsData, error: docsError } = await mysql
           .from("disbursement_documents")
           .select("*")
           .in("disbursement_id", disbursementIds);
@@ -305,7 +305,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
       console.log('File converted to base64, length:', fileBase64.length);
 
       // Check if a document already exists for this disbursement
-      const { data: existingDocs, error: checkError } = await supabase
+      const { data: existingDocs, error: checkError } = await mysql
         .from('disbursement_documents')
         .select('id')
         .eq('disbursement_id', disbursementId);
@@ -325,7 +325,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
       if (existingDocs && existingDocs.length > 0) {
         // Update existing document
         console.log('Updating existing document...');
-        const { error: updateError } = await supabase
+        const { error: updateError } = await mysql
           .from('disbursement_documents')
           .update({
             filename: uploadedFile.name,
@@ -345,7 +345,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
       } else {
         // Insert new document
         console.log('Inserting new document...');
-        const { error: insertError } = await supabase
+        const { error: insertError } = await mysql
           .from('disbursement_documents')
           .insert({
             disbursement_id: disbursementId,
@@ -363,7 +363,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
       }
 
       // Update disbursement record to indicate a document has been uploaded
-      const { error: disbursementUpdateError } = await supabase
+      const { error: disbursementUpdateError } = await mysql
         .from('disbursements')
         .update({ bereavement_form_url: 'database_stored' })
         .eq('id', disbursementId);
@@ -462,7 +462,7 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
     setIsLoading(true);
     try {
       // Record the disbursement
-      const { data: disbursementData, error: disbursementError } = await supabase
+      const { data: disbursementData, error: disbursementError } = await mysql
         .from("disbursements")
         .insert({
           member_id: selectedMember,
@@ -477,14 +477,14 @@ export const EnhancedDisbursementForm = ({ onSuccess }: { onSuccess?: () => void
       if (disbursementError) throw disbursementError;
 
       // Update member balance
-      const { data: currentBalance } = await supabase
+      const { data: currentBalance } = await mysql
         .from("member_balances")
         .select("current_balance, total_disbursements")
         .eq("member_id", selectedMember)
         .single();
 
       if (currentBalance) {
-        await supabase
+        await mysql
           .from("member_balances")
           .update({
             current_balance: Number(currentBalance.current_balance) - numAmount,

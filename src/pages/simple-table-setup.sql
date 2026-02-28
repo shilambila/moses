@@ -1,5 +1,5 @@
 -- Simple setup for disbursement documents table
--- Copy and paste this into your Supabase SQL Editor and click Run
+-- Copy and paste this into your MySQL SQL Editor and click Run
 
 CREATE TABLE IF NOT EXISTS public.disbursement_documents (
     id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,

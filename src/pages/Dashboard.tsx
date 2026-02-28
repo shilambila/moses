@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Users, FileText, DollarSign, Settings, Shield } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 
 interface StaffRole {
@@ -32,7 +32,7 @@ const Dashboard = () => {
 
   const fetchUserRole = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from("staff_registrations")
         .select("*")
         .eq("user_id", user?.id)

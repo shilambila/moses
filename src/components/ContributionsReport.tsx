@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Download, FileSpreadsheet, FileText, Calendar } from "lucide-react";
 import { format } from "date-fns";
@@ -36,7 +36,7 @@ export const ContributionsReport = () => {
 
   const fetchContributions = async () => {
     try {
-      let query = supabase
+      let query = mysql
         .from("contributions")
         .select(`
           *,

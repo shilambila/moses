@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Loader2, Phone, DollarSign } from "lucide-react";
 
@@ -31,7 +31,7 @@ export const MPESAPayment = ({ memberId, memberName }: MPESAPaymentProps) => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('mpesa-stk-push', {
+      const { data, error } = await mysql.functions.invoke('mpesa-stk-push', {
         body: {
           action: 'stk_push',
           memberId,
