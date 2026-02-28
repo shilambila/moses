@@ -11,9 +11,6 @@ const normalizeMysqlUrl = (rawUrl?: string | null) => {
   if (!rawUrl) return rawUrl ?? '';
   try {
     const parsed = new URL(rawUrl);
-    if (parsed.hostname.endsWith('.mysql.co')) {
-      parsed.hostname = parsed.hostname.replace(/\.mysql\.co$/, '.supabase.co');
-    }
     return parsed.toString().replace(/\/$/, '');
   } catch {
     return rawUrl;

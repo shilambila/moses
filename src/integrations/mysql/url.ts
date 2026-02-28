@@ -1,11 +1,3 @@
-const toSupabaseHostname = (hostname: string) => {
-  if (hostname.endsWith('.mysql.co')) {
-    return hostname.replace(/\.mysql\.co$/, '.supabase.co');
-  }
-
-  return hostname;
-};
-
 export const normalizeMysqlUrl = (rawUrl?: string) => {
   if (!rawUrl) {
     return rawUrl;
@@ -13,7 +5,6 @@ export const normalizeMysqlUrl = (rawUrl?: string) => {
 
   try {
     const parsed = new URL(rawUrl);
-    parsed.hostname = toSupabaseHostname(parsed.hostname);
     return parsed.toString().replace(/\/$/, '');
   } catch {
     return rawUrl;
