@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Users, UserCheck, UserX, Shield, Key, LogOut, Download, FileSpreadsheet, FileText, File, BarChart3, PieChart, DollarSign, TrendingUp, Calculator, Trash2, AlertTriangle, Edit, Save, X, UserMinus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { mysql } from "@/integrations/mysql/client";
+import { getFunctionsBaseUrl } from "@/integrations/mysql/url";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
@@ -31,6 +32,9 @@ import { DisbursementsReport } from "@/components/DisbursementsReport";
 import { ExpensesReport } from "@/components/ExpensesReport";
 import { MemberMPESAPayment } from "@/components/MemberMPESAPayment";
 import { triggerMemberDeletionSync, setupMemberDeletionSync, type MemberDeletionEvent } from '../utils/memberDeletionSync';
+
+const MYSQL_FUNCTIONS_BASE_URL = getFunctionsBaseUrl(import.meta.env.VITE_MYSQL_URL);
+const MYSQL_ANON_KEY = import.meta.env.VITE_MYSQL_PUBLISHABLE_KEY;
 
 interface MemberRegistration {
   id: string;
@@ -1345,12 +1349,12 @@ const AdminPortal = () => {
 
       // CSV/Excel export via edge function
       const response = await fetch(
-        "https://wfqgnshhlfuznabweofj.mysql.co/functions/v1/export-members?format=" + format,
+        `${MYSQL_FUNCTIONS_BASE_URL}/export-members?format=${format}`,
         {
           method: 'GET',
           headers: {
-            'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA",
-            'apikey': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA"
+            'Authorization': `Bearer ${MYSQL_ANON_KEY}`,
+            'apikey': MYSQL_ANON_KEY
           }
         }
       );
@@ -1484,11 +1488,11 @@ const AdminPortal = () => {
       }
 
       // Otherwise, use edge function (CSV/Excel)
-      const response = await fetch('https://wfqgnshhlfuznabweofj.mysql.co/functions/v1/export-treasurer-report', {
+      const response = await fetch(`${MYSQL_FUNCTIONS_BASE_URL}/export-treasurer-report`, {
         method: 'POST',
         headers: {
-          'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA",
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA',
+          'Authorization': `Bearer ${MYSQL_ANON_KEY}`,
+          'apikey': MYSQL_ANON_KEY,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
