@@ -8,7 +8,7 @@ SET NAMES utf8mb4;
 SET time_zone = '+00:00';
 
 CREATE TABLE IF NOT EXISTS `membership_registrations` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `tns_number` VARCHAR(50) NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `membership_registrations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `staff_registrations` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `user_id` CHAR(36) NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `staff_registrations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `profiles` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `user_id` CHAR(36) NOT NULL,
   `first_name` VARCHAR(100) NULL,
   `last_name` VARCHAR(100) NULL,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `profiles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `member_balances` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `member_id` CHAR(36) NOT NULL,
   `current_balance` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `total_contributions` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `member_balances` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `contributions` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `member_id` CHAR(36) NOT NULL,
   `amount` DECIMAL(12,2) NOT NULL,
   `contribution_type` VARCHAR(50) NOT NULL DEFAULT 'monthly',
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `contributions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `disbursements` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `member_id` CHAR(36) NOT NULL,
   `amount` DECIMAL(12,2) NOT NULL,
   `reason` TEXT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `disbursements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `disbursement_documents` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `disbursement_id` CHAR(36) NOT NULL,
   `filename` VARCHAR(255) NOT NULL,
   `file_type` VARCHAR(100) NOT NULL,
@@ -167,25 +167,26 @@ CREATE TABLE IF NOT EXISTS `disbursement_documents` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `documents` (
-  `id` CHAR(36) NOT NULL,
-  `disbursement_id` CHAR(36) NOT NULL,
-  `filename` VARCHAR(255) NOT NULL,
-  `file_type` VARCHAR(100) NOT NULL,
-  `file_size` BIGINT NOT NULL,
-  `file_data` LONGTEXT NOT NULL,
-  `uploaded_by` CHAR(36) NULL,
-  `uploaded_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
+  `title` TEXT NOT NULL,
+  `content` LONGTEXT NOT NULL,
+  `document_type` VARCHAR(50) NOT NULL,
+  `created_by` CHAR(36) NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `meeting_date` DATE NULL,
+  `recipient` TEXT NULL,
+  `template_category` VARCHAR(100) NULL,
+  `status` VARCHAR(30) NOT NULL DEFAULT 'draft',
+  `tags` JSON NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_documents_disbursement_id` (`disbursement_id`),
-  CONSTRAINT `fk_documents_disbursement_id`
-    FOREIGN KEY (`disbursement_id`) REFERENCES `disbursements` (`id`)
-    ON UPDATE CASCADE ON DELETE CASCADE
+  KEY `idx_documents_document_type` (`document_type`),
+  KEY `idx_documents_created_by` (`created_by`),
+  KEY `idx_documents_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `monthly_expenses` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `expense_category` VARCHAR(80) NOT NULL,
   `description` TEXT NULL,
   `amount` DECIMAL(12,2) NOT NULL,
@@ -200,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `monthly_expenses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `mpesa_payments` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `member_id` CHAR(36) NOT NULL,
   `phone_number` VARCHAR(30) NOT NULL,
   `amount` DECIMAL(12,2) NOT NULL,
@@ -222,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `mpesa_payments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `tasks` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `title` VARCHAR(255) NOT NULL,
   `description` TEXT NULL,
   `task_type` VARCHAR(50) NOT NULL,
@@ -240,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `contact_submissions` (
-  `id` CHAR(36) NOT NULL,
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
   `name` VARCHAR(200) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `phone` VARCHAR(30) NULL,
