@@ -264,3 +264,34 @@ SELECT
   COALESCE(b.total_disbursements, 0) AS total_disbursements
 FROM membership_registrations m
 LEFT JOIN member_balances b ON b.member_id = m.id;
+
+
+-- Sample data: Super Admin (can manage all other users)
+INSERT INTO `staff_registrations`
+  (`id`, `user_id`, `first_name`, `last_name`, `email`, `phone`, `staff_role`, `assigned_area`, `portal_password`, `pending`)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Super', 'Admin', 'superadmin@mose.local', '+254700000001', 'Admin', 'All', 'ChangeMe@123', 'approved')
+ON DUPLICATE KEY UPDATE
+  `first_name` = VALUES(`first_name`),
+  `last_name` = VALUES(`last_name`),
+  `email` = VALUES(`email`),
+  `phone` = VALUES(`phone`),
+  `staff_role` = VALUES(`staff_role`),
+  `assigned_area` = VALUES(`assigned_area`),
+  `portal_password` = VALUES(`portal_password`),
+  `pending` = VALUES(`pending`);
+
+INSERT INTO `profiles`
+  (`id`, `user_id`, `first_name`, `last_name`, `phone`, `address`, `city`, `state`, `zip_code`, `emergency_contact_name`, `emergency_contact_phone`)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Super', 'Admin', '+254700000001', 'HQ', 'Nairobi', 'Nairobi', '00100', 'System', '+254700000002')
+ON DUPLICATE KEY UPDATE
+  `first_name` = VALUES(`first_name`),
+  `last_name` = VALUES(`last_name`),
+  `phone` = VALUES(`phone`),
+  `address` = VALUES(`address`),
+  `city` = VALUES(`city`),
+  `state` = VALUES(`state`),
+  `zip_code` = VALUES(`zip_code`),
+  `emergency_contact_name` = VALUES(`emergency_contact_name`),
+  `emergency_contact_phone` = VALUES(`emergency_contact_phone`);

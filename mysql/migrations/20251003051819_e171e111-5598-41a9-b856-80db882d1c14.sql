@@ -20,7 +20,7 @@ CREATE POLICY "Admins and Treasurers can view all mpesa payments"
 ON mpesa_payments
 FOR SELECT
 USING (
-  -- Check if user is authenticated via Supabase auth with admin/treasurer role
+  -- Check if user is authenticated via MySQL auth with admin/treasurer role
   EXISTS (
     SELECT 1
     FROM staff_registrations sr

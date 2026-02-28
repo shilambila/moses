@@ -1,5 +1,5 @@
--- First, let's create a Supabase Auth user for the treasurer
--- Note: This needs to be done through the Supabase Auth API, not directly in the database
+-- First, let's create a MySQL Auth user for the treasurer
+-- Note: This needs to be done through the MySQL Auth API, not directly in the database
 
 -- For now, let's create a function that can help link existing staff to auth users
 CREATE OR REPLACE FUNCTION public.link_staff_to_user(
