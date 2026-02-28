@@ -1,0 +1,22 @@
+project_id = "wfqgnshhlfuznabweofj"
+
+[api]
+enabled = true
+
+[functions.export-audit-report]
+verify_jwt = false
+ 
+[functions.export-excel]
+verify_jwt = false
+
+[functions.export-members]
+verify_jwt = false
+
+[functions.export-treasurer-report]
+verify_jwt = false
+
+[functions.mpesa-stk-push]
+verify_jwt = false
+
+[functions.send-sms]
+verify_jwt = false
