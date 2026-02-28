@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -99,35 +99,35 @@ const AuditorPortal = () => {
       setLoading(true);
       
       // Fetch contributions
-      const { data: contributions, error: contributionsError } = await supabase
+      const { data: contributions, error: contributionsError } = await mysql
         .from('contributions')
         .select('*');
 
       if (contributionsError) throw contributionsError;
 
       // Fetch disbursements  
-      const { data: disbursements, error: disbursementsError } = await supabase
+      const { data: disbursements, error: disbursementsError } = await mysql
         .from('disbursements')
         .select('*');
 
       if (disbursementsError) throw disbursementsError;
 
       // Fetch monthly expenses
-      const { data: expenses, error: expensesError } = await supabase
+      const { data: expenses, error: expensesError } = await mysql
         .from('monthly_expenses')
         .select('*');
 
       if (expensesError) throw expensesError;
 
       // Fetch member balances
-      const { data: balances, error: balancesError } = await supabase
+      const { data: balances, error: balancesError } = await mysql
         .from('member_balances')
         .select('*');
 
       if (balancesError) throw balancesError;
 
       // Fetch approved members
-      const { data: members, error: membersError } = await supabase
+      const { data: members, error: membersError } = await mysql
         .from('membership_registrations')
         .select('*')
         .eq('registration_status', 'approved');

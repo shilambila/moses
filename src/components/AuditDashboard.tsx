@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { 
   TrendingUp, 
@@ -91,21 +91,21 @@ export const AuditDashboard = ({ metrics, auditSummary }: AuditDashboardProps) =
 
       for (const monthData of months) {
         // Fetch contributions for the month
-        const { data: contributions } = await supabase
+        const { data: contributions } = await mysql
           .from('contributions')
           .select('amount')
           .gte('contribution_date', `${monthData.monthKey}-01`)
           .lt('contribution_date', `${monthData.monthKey}-32`);
 
         // Fetch disbursements for the month  
-        const { data: disbursements } = await supabase
+        const { data: disbursements } = await mysql
           .from('disbursements')
           .select('amount')
           .gte('disbursement_date', `${monthData.monthKey}-01`)
           .lt('disbursement_date', `${monthData.monthKey}-32`);
 
         // Fetch expenses for the month
-        const { data: expenses } = await supabase
+        const { data: expenses } = await mysql
           .from('monthly_expenses')
           .select('amount')
           .eq('month_year', monthData.monthKey);

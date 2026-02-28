@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Save, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -50,7 +50,7 @@ export const DocumentEditor = ({ document, onSave, onCancel }: DocumentEditorPro
     try {
       setIsLoading(true);
       
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await mysql.auth.getUser();
       if (userError) {
         console.error('Auth error:', userError);
         toast.error("Please log in again - your session has expired");
@@ -69,7 +69,7 @@ export const DocumentEditor = ({ document, onSave, onCancel }: DocumentEditorPro
 
       if (document?.id) {
         // Update existing document
-        const { error } = await supabase
+        const { error } = await mysql
           .from('documents')
           .update(documentData)
           .eq('id', document.id);
@@ -78,7 +78,7 @@ export const DocumentEditor = ({ document, onSave, onCancel }: DocumentEditorPro
         toast.success("Document updated successfully");
       } else {
         // Create new document
-        const { error } = await supabase
+        const { error } = await mysql
           .from('documents')
           .insert([documentData]);
 

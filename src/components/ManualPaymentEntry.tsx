@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Loader2, Plus, DollarSign } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
@@ -55,7 +55,7 @@ export const ManualPaymentEntry = ({ onSuccess }: { onSuccess?: () => void }) =>
   const fetchMembers = async () => {
     setLoadingMembers(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from('membership_registrations')
         .select('id, first_name, last_name, tns_number, email')
         .eq('registration_status', 'approved')
@@ -163,7 +163,7 @@ export const ManualPaymentEntry = ({ onSuccess }: { onSuccess?: () => void }) =>
       console.log('🚀 Recording manual payment:', paymentData);
 
       // Use edge function with service role for guaranteed database access
-      const response = await fetch('https://wfqgnshhlfuznabweofj.supabase.co/functions/v1/record-transaction', {
+      const response = await fetch('https://wfqgnshhlfuznabweofj.mysql.co/functions/v1/record-transaction', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ export const ManualPaymentEntry = ({ onSuccess }: { onSuccess?: () => void }) =>
         
         console.log('💾 Inserting contribution directly:', contributionData);
         
-        const { data: contributionResult, error: contributionError } = await supabase
+        const { data: contributionResult, error: contributionError } = await mysql
           .from('contributions')
           .insert(contributionData)
           .select()
@@ -254,7 +254,7 @@ export const ManualPaymentEntry = ({ onSuccess }: { onSuccess?: () => void }) =>
           
           console.log('💾 Creating MPESA audit record:', mpesaData);
           
-          const { error: mpesaError } = await supabase
+          const { error: mpesaError } = await mysql
             .from('mpesa_payments')
             .insert(mpesaData);
             

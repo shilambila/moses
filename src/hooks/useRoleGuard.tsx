@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStaffAuth } from './useStaffAuth';
 import { useAuth } from './useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { mysql } from '@/integrations/mysql/client';
 import { toast } from 'sonner';
 
 // Define allowed roles for each portal
@@ -89,10 +89,10 @@ export const useRoleGuard = ({
         return;
       }
 
-      // Fallback path: derive staff role from authenticated Supabase user
+      // Fallback path: derive staff role from authenticated MySQL user
       if (authUser?.email) {
         try {
-          const { data: staffData, error } = await supabase
+          const { data: staffData, error } = await mysql
             .from('staff_registrations')
             .select('id, email, first_name, last_name, staff_role, assigned_area, pending')
             .eq('email', authUser.email)

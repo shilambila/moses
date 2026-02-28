@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Download, Search, Filter, AlertTriangle, CheckCircle, XCircle, Clock, FileSpreadsheet, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ReportGenerator, DisbursementReportData } from "@/utils/reportGenerator";
@@ -46,12 +46,12 @@ export const DisbursementAudit = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // Fetch real data from Supabase
+  // Fetch real data from MySQL
   useEffect(() => {
     const fetchDisbursements = async () => {
       try {
         // Fetch disbursements with member details
-        const { data: disbursementData, error } = await supabase
+        const { data: disbursementData, error } = await mysql
           .from('disbursements')
           .select(`
             id,

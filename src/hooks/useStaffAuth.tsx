@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { mysql } from '@/integrations/mysql/client';
 
 interface StaffUser {
   id: string;
@@ -41,7 +41,7 @@ export const StaffAuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       
       // Query staff_registrations directly
-      const { data: staffData, error } = await supabase
+      const { data: staffData, error } = await mysql
         .from('staff_registrations')
         .select('*')
         .eq('email', email)

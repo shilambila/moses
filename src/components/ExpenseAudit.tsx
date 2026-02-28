@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Download, Search, Filter, AlertTriangle, CheckCircle, XCircle, Clock, DollarSign, Eye, PieChart, FileText, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
@@ -50,12 +50,12 @@ export const ExpenseAudit = () => {
   const [selectedExpense, setSelectedExpense] = useState<MonthlyExpense | null>(null);
   const [exportLoading, setExportLoading] = useState<string>("");
 
-  // Fetch real data from Supabase
+  // Fetch real data from MySQL
   useEffect(() => {
     const fetchExpenseData = async () => {
       try {
-        // Fetch monthly expenses from Supabase
-        const { data: expenseData, error } = await supabase
+        // Fetch monthly expenses from MySQL
+        const { data: expenseData, error } = await mysql
           .from('monthly_expenses')
           .select('*')
           .order('expense_date', { ascending: false });

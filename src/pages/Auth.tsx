@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Loader2, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
@@ -20,7 +20,7 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await mysql.auth.getSession();
       if (session) {
         navigate("/");
       }
@@ -33,7 +33,7 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await mysql.auth.signInWithPassword({
         email,
         password,
       });
@@ -59,7 +59,7 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await mysql.auth.signUp({
         email,
         password,
         options: {

@@ -1,5 +1,5 @@
 -- Alternative approach: Create a table to store bereavement documents as base64
--- This avoids Supabase storage bucket permission issues by storing files directly in the database
+-- This avoids MySQL storage bucket permission issues by storing files directly in the database
 
 -- Create the documents table
 CREATE TABLE IF NOT EXISTS public.disbursement_documents (

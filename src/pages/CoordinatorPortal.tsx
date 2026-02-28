@@ -57,7 +57,7 @@ import {
   FileText,
   LogOut
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useCrossPortalSync } from "@/hooks/useCrossPortalSync";
@@ -206,7 +206,7 @@ const CoordinatorPortal = () => {
     const subscriptions = [];
 
     // Subscribe to member_balances changes
-    const balanceSubscription = supabase
+    const balanceSubscription = mysql
       .channel('member_balances_changes')
       .on('postgres_changes', {
         event: '*',
@@ -224,7 +224,7 @@ const CoordinatorPortal = () => {
     subscriptions.push(balanceSubscription);
 
     // Subscribe to contributions changes
-    const contributionsSubscription = supabase
+    const contributionsSubscription = mysql
       .channel('contributions_changes')
       .on('postgres_changes', {
         event: '*',
@@ -242,7 +242,7 @@ const CoordinatorPortal = () => {
     subscriptions.push(contributionsSubscription);
 
     // Subscribe to member registration changes
-    const membersSubscription = supabase
+    const membersSubscription = mysql
       .channel('member_registrations_changes')
       .on('postgres_changes', {
         event: '*',
@@ -269,7 +269,7 @@ const CoordinatorPortal = () => {
     // Cleanup function
     return () => {
       subscriptions.forEach(subscription => {
-        supabase.removeChannel(subscription);
+        mysql.removeChannel(subscription);
       });
       clearInterval(intervalId);
     };

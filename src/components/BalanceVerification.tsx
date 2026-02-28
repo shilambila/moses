@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { Download, Search, AlertTriangle, CheckCircle, XCircle, Calculator, TrendingUp, TrendingDown, FileText, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { ReportGenerator } from "@/utils/reportGenerator";
@@ -52,12 +52,12 @@ export const BalanceVerification = () => {
   const [selectedTab, setSelectedTab] = useState("overview");
   const [exportLoading, setExportLoading] = useState<string>("");
 
-  // Fetch real data from Supabase
+  // Fetch real data from MySQL
   useEffect(() => {
     const fetchBalanceData = async () => {
       try {
         // Fetch member balances with member details
-        const { data: balanceData, error } = await supabase
+        const { data: balanceData, error } = await mysql
           .from('member_balances')
           .select(`
             id,
@@ -119,13 +119,13 @@ export const BalanceVerification = () => {
         setFilteredBalances(transformedBalances);
         
         // Fetch recent transactions for context
-        const { data: contributionData } = await supabase
+        const { data: contributionData } = await mysql
           .from('contributions')
           .select('*')
           .order('contribution_date', { ascending: false })
           .limit(50);
           
-        const { data: disbursementData } = await supabase
+        const { data: disbursementData } = await mysql
           .from('disbursements')
           .select('*')
           .order('disbursement_date', { ascending: false })

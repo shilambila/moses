@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { supabase } from "@/integrations/supabase/client";
+import { mysql } from "@/integrations/mysql/client";
 import { toast } from "sonner";
 import { Loader2, Users, DollarSign, Phone, User } from "lucide-react";
 import { MPESAPayment } from "./MPESAPayment";
@@ -35,7 +35,7 @@ export const MemberMPESAPayment = () => {
   const fetchApprovedMembers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await mysql
         .from("membership_registrations")
         .select("id, first_name, last_name, email, phone, tns_number, profile_picture_url, registration_status, payment_status")
         .eq("registration_status", "approved")

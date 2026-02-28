@@ -1,8 +1,8 @@
 -- Setup script for disbursement documents storage bucket
--- Run this in your Supabase SQL editor to create the storage bucket and set up proper policies
+-- Run this in your MySQL SQL editor to create the storage bucket and set up proper policies
 
 -- First, ensure the disbursement-documents storage bucket exists
--- Note: Storage buckets are usually created through the Supabase dashboard or via the createBucket API call
+-- Note: Storage buckets are usually created through the MySQL dashboard or via the createBucket API call
 -- This is handled automatically in the EnhancedDisbursementForm component
 
 -- Create RLS policies for the storage bucket
