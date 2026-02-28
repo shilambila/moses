@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mysql } from "@/integrations/mysql/client";
+import { getFunctionsBaseUrl } from "@/integrations/mysql/url";
 import { toast } from "sonner";
 import { Loader2, Plus, DollarSign } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
@@ -34,6 +35,9 @@ const PAYMENT_TYPE_LABELS = {
   [PAYMENT_TYPES.REGISTRATION]: 'Registration',
   [PAYMENT_TYPES.OTHERS]: 'Others'
 } as const;
+
+const MYSQL_FUNCTIONS_BASE_URL = getFunctionsBaseUrl(import.meta.env.VITE_MYSQL_URL);
+const MYSQL_ANON_KEY = import.meta.env.VITE_MYSQL_PUBLISHABLE_KEY;
 
 export const ManualPaymentEntry = ({ onSuccess }: { onSuccess?: () => void }) => {
   const { staffUser } = useStaffAuth();
@@ -163,12 +167,12 @@ export const ManualPaymentEntry = ({ onSuccess }: { onSuccess?: () => void }) =>
       console.log('🚀 Recording manual payment:', paymentData);
 
       // Use edge function with service role for guaranteed database access
-      const response = await fetch('https://wfqgnshhlfuznabweofj.mysql.co/functions/v1/record-transaction', {
+      const response = await fetch(`${MYSQL_FUNCTIONS_BASE_URL}/record-transaction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcWduc2hobGZ1em5hYndlb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTE0MzgsImV4cCI6MjA3MDgyNzQzOH0.EsPr_ypf7B1PXTWmjS2ZGXDVBe7HeNHDWsvJcgQpkLA'
+          'Authorization': `Bearer ${MYSQL_ANON_KEY}`,
+          'apikey': MYSQL_ANON_KEY
         },
         body: JSON.stringify(paymentData)
       });
