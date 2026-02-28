@@ -7,7 +7,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const mysqlUrl = Deno.env.get('MYSQL_URL')!
+const normalizeMysqlUrl = (rawUrl?: string | null) => {
+  if (!rawUrl) return rawUrl ?? '';
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.hostname.endsWith('.mysql.co')) {
+      parsed.hostname = parsed.hostname.replace(/\.mysql\.co$/, '.supabase.co');
+    }
+    return parsed.toString().replace(/\/$/, '');
+  } catch {
+    return rawUrl;
+  }
+};
+
+const mysqlUrl = normalizeMysqlUrl(Deno.env.get('MYSQL_URL'))
 const mysqlServiceKey = Deno.env.get('MYSQL_SERVICE_ROLE_KEY')!
 
 serve(async (req) => {
@@ -135,7 +148,7 @@ async function handleSTKPush(data: any, mysql: any) {
       PartyA: formattedPhone,
       PartyB: shortcode,
       PhoneNumber: formattedPhone,
-      CallBackURL: `${Deno.env.get('MYSQL_URL')}/functions/v1/mpesa-stk-push`,
+      CallBackURL: `${mysqlUrl}/functions/v1/mpesa-stk-push`,
       AccountReference: `TNS${memberId}`,
       TransactionDesc: "Membership Payment"
     };
