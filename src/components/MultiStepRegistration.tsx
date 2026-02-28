@@ -351,38 +351,42 @@ const MultiStepRegistration = () => {
           hint: error.hint
         });
         console.error('Submitted data that caused error:', registrationData);
-        
+
+        let resolvedByFallback = false;
+
         // Check if it's an unknown column error for mpesa_payment_reference
         if (error.message.includes('mpesa_payment_reference') && error.message.includes('column')) {
           console.log('MPESA reference column not found, trying fallback method...');
-          
+
           // Fallback: store in address field temporarily
           const fallbackData = { ...registrationData };
           fallbackData.address = `${areaOfResidence} | MPESA Ref: ${paymentRef}`;
           delete fallbackData.mpesa_payment_reference;
-          
+
           console.log('Retrying with fallback data:', fallbackData);
-          
+
           const { data: fallbackResult, error: fallbackError } = await mysql
             .from('membership_registrations')
             .insert(fallbackData)
             .select()
             .single();
-          
+
           if (fallbackError) {
             console.error('Fallback also failed:', fallbackError);
             throw fallbackError;
           }
-          
+
           console.log('Fallback registration successful:', fallbackResult);
           console.log('Assigned TNS Number:', fallbackResult.tns_number);
-          
+
           // Set data for success handling
           data = fallbackResult;
-          // Continue with normal success flow below
+          resolvedByFallback = true;
         }
-        
-        throw error;
+
+        if (!resolvedByFallback) {
+          throw error;
+        }
       }
       
       console.log('✅ Registration successful:', data);
